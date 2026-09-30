@@ -11,9 +11,10 @@ jobs:
     steps:
       - name: Calculate Days and Send WhatsApp Message
         env:
-          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          # ඔයාගේ Secrets වල නම් මෙතනට ගැලපෙන්න හැදුවා
+          META_ACCESS_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
           PHONE_NUMBER_ID: ${{ secrets.PHONE_NUMBER_ID }}
-          RECIPIENT_NUMBER: ${{ secrets.RECIPIENT_NUMBER }}
+          RECIPIENT_NUMBER: ${{ secrets.RECIPIENT_PHONE }}
         run: |
           TARGET_DATE="2026-10-14"
           CURRENT_DATE=$(date +%Y-%m-%d)
