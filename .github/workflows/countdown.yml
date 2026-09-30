@@ -1,0 +1,60 @@
+name: WhatsApp Birthday Countdown
+
+on:
+  schedule:
+    # ලංකාවේ වෙලාවෙන් හැමදාම උදේ 8:00 ට මැසේජ් එක යවන්න (UTC 02:30)
+    - cron: '30 2 * * *'
+  workflow_dispatch: # අපිට ඕන වෙලාවක Manual ටෙස්ට් කරන්න
+
+jobs:
+  send_countdown:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Calculate Days and Send WhatsApp Message
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          PHONE_NUMBER_ID: ${{ secrets.PHONE_NUMBER_ID }}
+          RECIPIENT_NUMBER: ${{ secrets.RECIPIENT_NUMBER }}
+        run: |
+          # උපන්දිනය දෙනවා
+          TARGET_DATE="2026-10-14"
+          
+          # ඉතුරු දවස් ගාණ හොයනවා
+          CURRENT_DATE=$(date +%Y-%m-%d)
+          DAYS_LEFT=$(( ($(date -d "$TARGET_DATE" +%s) - $(date -d "$CURRENT_DATE" +%s)) / 86400 ))
+          
+          echo "Days left: $DAYS_LEFT"
+          
+          if [ "$DAYS_LEFT" -gt 0 ]; then
+            # දවස් ඉතුරු නම් මැසේජ් එක යවනවා
+            curl -X POST \
+              "https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages" \
+              -H "Authorization: Bearer ${META_ACCESS_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "messaging_product": "whatsapp",
+                "to": "'"${RECIPIENT_NUMBER}"'",
+                "type": "template",
+                "template": {
+                  "name": "bday_countdown",
+                  "language": {
+                    "code": "si"
+                  },
+                  "components": [
+                    {
+                      "type": "body",
+                      "parameters": [
+                        {
+                          "type": "text",
+                          "text": "'"${DAYS_LEFT}"'"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }'
+          elif [ "$DAYS_LEFT" -eq 0 ]; then
+            echo "අද උපන්දිනේ!"
+          else
+            echo "උපන්දිනේ පහු වෙලා."
+          fi
