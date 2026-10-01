@@ -18,11 +18,13 @@ jobs:
           TARGET_DATE="2026-10-14"
           CURRENT_DATE=$(date +%Y-%m-%d)
           DAYS_LEFT=$(( ($(date -d "$TARGET_DATE" +%s) - $(date -d "$CURRENT_DATE" +%s)) / 86400 ))
-          
+
           echo "Days left: $DAYS_LEFT"
-          
+
           if [ "$DAYS_LEFT" -gt 0 ]; then
-            curl -X POST \
+            curl -sS --fail-with-body \
+              -w "\nHTTP status: %{http_code}\n" \
+              -X POST \
               "https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages" \
               -H "Authorization: Bearer ${META_ACCESS_TOKEN}" \
               -H "Content-Type: application/json" \
@@ -32,17 +34,12 @@ jobs:
                 "type": "template",
                 "template": {
                   "name": "bday_countdown",
-                  "language": {
-                    "code": "en"
-                  },
+                  "language": { "code": "en_US" },
                   "components": [
                     {
                       "type": "body",
                       "parameters": [
-                        {
-                          "type": "text",
-                          "text": "'"${DAYS_LEFT}"'"
-                        }
+                        { "type": "text", "text": "'"${DAYS_LEFT}"'" }
                       ]
                     }
                   ]
