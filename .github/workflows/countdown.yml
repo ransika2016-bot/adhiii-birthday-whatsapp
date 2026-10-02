@@ -34,7 +34,7 @@ jobs:
                 "type": "template",
                 "template": {
                   "name": "bday_countdown",
-                  "language": { "code": "en_US" },
+                  "language": { "code": "en" },
                   "components": [
                     {
                       "type": "body",
